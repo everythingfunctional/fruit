@@ -254,6 +254,11 @@ class FruitProcessor
 
 end
 
+def end_match (string, match)
+    return false if string == nil or string.length ==1
+    return string[string.length-1, string.length-1] == match
+end
+
 class FruitFortranFile < File
 
     def read_noarg_sub_name
