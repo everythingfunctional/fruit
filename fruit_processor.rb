@@ -157,20 +157,20 @@ class FruitProcessor
                             f.write "    call setup\n"
                         end
                     end
-                    f.write "    write (*, *) \"  ..running test: #{method_name}\"\n"
-                    f.write "    call set_unit_name('#{method_name}')\n"
+                    f.write "    write (*, *) \"  ..running test: #{format_spec_fortran(spec_names[spec_counter], '')}\"\n"
+                    f.write "    call set_unit_name('#{format_spec_fortran(spec_names[spec_counter], '')}')\n"
                     f.write "    call run_test_case (#{method_name}, &\n"
-                    f.write "                      &\"#{method_name}\")\n"
+                    f.write "                      &\"#{format_spec_fortran(spec_names[spec_counter], '')}\")\n"
                     f.write "    if (.not. is_case_passed()) then\n"
                     f.write "      write(*,*) \n"
                     f.write "      write(*,*) '  Un-satisfied spec:'\n"
                     f.write "      write(*,*) '#{format_spec_fortran(spec_names[spec_counter], '  -- ')}'\n"
                     f.write "      write(*,*) \n"
 
-                    f.write "      call case_failed_xml(\"#{method_name}\", &\n"
+                    f.write "      call case_failed_xml(\"#{format_spec_fortran(spec_names[spec_counter], '')}\", &\n"
                     f.write "      & \"#{test_module_name}\")\n"
                     f.write "    else\n"
-                    f.write "      call case_passed_xml(\"#{method_name}\", &\n"
+                    f.write "      call case_passed_xml(\"#{format_spec_fortran(spec_names[spec_counter], '')}\", &\n"
                     f.write "      & \"#{test_module_name}\")\n"
                     f.write "    end if\n"
 
