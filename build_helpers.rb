@@ -66,11 +66,11 @@ class SourceFile
     end
 
     def addModuleUsed(module_name)
-        @modules_used.push(module_name)
+        @modules_used.push(module_name).uniq!
     end
 
     def addModuleContained(module_name)
-        @modules_contained.push(module_name)
+        @modules_contained.push(module_name).uniq!
     end
 
     def removeModuleUsed(module_name)
