@@ -172,14 +172,20 @@ def followModules(source, available_modules)
 end
 
 def followDependencies(source, build_dir, available_modules)
-    needed_objects = [source.object(build_dir)]
-    source.modules_used.each do |module_name|
-        if available_modules.include?(module_name)
-            additional_needed = followDependencies(available_modules[module_name].source, build_dir, available_modules)
-            needed_objects.concat(additional_needed)
+    @dependency_cache ||= Hash.new do |h, key|
+        source = key[0]
+        build_dir = key[1]
+        available_modules = key[2]
+        needed_objects = [source.object(build_dir)]
+        source.modules_used.each do |module_name|
+            if available_modules.include?(module_name)
+                additional_needed = followDependencies(available_modules[module_name].source, build_dir, available_modules)
+                needed_objects.concat(additional_needed)
+            end
         end
+        h[key] = needed_objects.uniq
     end
-    return needed_objects.uniq
+    return @dependency_cache[[source, build_dir, available_modules]]
 end
 
 def usesProductionCode(source, available_modules)
@@ -192,16 +198,24 @@ def usesProductionCode(source, available_modules)
 end
 
 def followTestDependencies(source, test_dir, devel_dir, test_modules, main_modules)
-    needed_objects = [source.object(test_dir)]
-    source.modules_used.each do |module_name|
-        if main_modules.include?(module_name)
-            additional_needed = followDependencies(main_modules[module_name].source, devel_dir, main_modules)
-            needed_objects.concat(additional_needed)
+    @test_dependency_cache ||= Hash.new do |h, key|
+        source = key[0]
+        test_dir = key[1]
+        devel_dir = key[2]
+        test_modules = key[3]
+        main_modules = key[4]
+        needed_objects = [source.object(test_dir)]
+        source.modules_used.each do |module_name|
+            if main_modules.include?(module_name)
+                additional_needed = followDependencies(main_modules[module_name].source, devel_dir, main_modules)
+                needed_objects.concat(additional_needed)
+            end
+            if test_modules.include?(module_name)
+                additional_needed = followTestDependencies(test_modules[module_name].source, test_dir, devel_dir, test_modules, main_modules)
+                needed_objects.concat(additional_needed)
+            end
         end
-        if test_modules.include?(module_name)
-            additional_needed = followTestDependencies(test_modules[module_name].source, test_dir, devel_dir, test_modules, main_modules)
-            needed_objects.concat(additional_needed)
-        end
+        h[key] = needed_objects.uniq
     end
-    return needed_objects.uniq
+    return @test_dependency_cache[[source, test_dir, devel_dir, test_modules, main_modules]]
 end
